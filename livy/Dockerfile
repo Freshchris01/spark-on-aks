@@ -3,8 +3,10 @@ FROM openjdk:8-jdk-slim as build
 ENV GITHUB_REPO     apache/incubator-livy
 ENV GITHUB_BRANCH   master
 RUN mkdir -p /usr/share/man/man1
-RUN apt clean && apt update && apt -y install git maven python-pip r-base && \
+RUN apt clean && apt update && apt -y install git maven python3-pip r-base && \
     pip install --upgrade pip setuptools
+# create python alias
+RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN git clone -b ${GITHUB_BRANCH} https://github.com/${GITHUB_REPO}.git && \
     cd incubator-livy && \
     mvn -T 8 clean package -DskipTests=true && \
@@ -51,13 +53,14 @@ RUN unzip /apache-livy-${LIVY_VERSION}-bin.zip -d / && \
     ln -s /var/log/livy $LIVY_HOME/logs
 
 # Download Spark Binaries
-RUN wget https://downloads.apache.org/spark/spark-3.0.1/spark-3.0.1-bin-hadoop3.2.tgz
+#RUN wget https://downloads.apache.org/spark/spark-3.0.1/spark-3.0.1-bin-hadoop3.2.tgz
+RUN wget https://dlcdn.apache.org/spark/spark-3.2.1/spark-3.2.1-bin-hadoop3.2.tgz
 
 # Extract tar all to path. Exclude certain files to reduce docker build time and container size
-RUN tar -xzvf spark-3.0.1-bin-hadoop3.2.tgz -C /opt/spark/ --strip-components 1
+RUN tar -xzvf spark-3.2.1-bin-hadoop3.2.tgz -C /opt/spark/ --strip-components 1
 
 # Clean up tar ball
-RUN rm spark-3.0.1-bin-hadoop3.2.tgz
+RUN rm spark-3.2.1-bin-hadoop3.2.tgz
 
 # Setup ENV
 ENV SPARK_HOME /opt/spark
