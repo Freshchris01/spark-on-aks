@@ -3,5 +3,19 @@ kind: Pod
 spec:
   containers:
     - name: spark
-      image: anildwacontainerregistry.azurecr.io/spark:3.0.1
+      image: edwinspot.azurecr.io/spark:3.2.1-new
       imagePullPolicy: Always
+  tolerations:
+	  - key: "kubernetes.azure.com/scalesetpriority"
+		  operator: "Equal"
+			value: "spot"
+			effect: "NoSchedule"
+			affinity:
+			  nodeAffinity:
+			    requiredDuringSchedulingIgnoredDuringExecution:
+				    nodeSelectorTerms:
+				      - matchExpressions:
+				      - key: "kubernetes.azure.com/scalesetpriority"
+				        operator: In
+								values:
+								- "spot"
